@@ -47,7 +47,8 @@ export default async function AllSessionsSignaturePage({ params }: Props) {
                 <div className="text-center">
                   <h3 className="text-xl font-semibold text-gray-900">{participant.name}</h3>
                   <p className="text-gray-600">
-                    {participant.department} · {participant.position}
+                      {participant.name}
+                    {/*{participant.department} · {participant.position}*/}
                   </p>
                 </div>
               </div>
