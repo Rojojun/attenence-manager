@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -19,38 +18,9 @@ export default function GiftsPage() {
   }, [])
 
   const loadPrograms = async () => {
-    const supabase = createClient()
-    const { data } = await supabase
-      .from("programs")
-      .select(`
-        *,
-        participants:participants(*)
-      `)
-      .order("created_at", { ascending: false })
-
-    setPrograms(data || [])
-  }
 
   const toggleGiftStatus = async (participantId: string, currentStatus: boolean) => {
     setIsLoading(true)
-    try {
-      const supabase = createClient()
-      const { error } = await supabase
-        .from("participants")
-        .update({ gift_received: !currentStatus })
-        .eq("id", participantId)
-
-      if (error) throw error
-
-      // 데이터 새로고침
-      await loadPrograms()
-    } catch (error) {
-      console.error("기념품 상태 업데이트 오류:", error)
-      alert("기념품 상태 업데이트 중 오류가 발생했습니다.")
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   // 검색 필터링
   const filteredPrograms = programs.map((program) => ({
@@ -239,4 +209,5 @@ export default function GiftsPage() {
       </div>
     </div>
   )
-}
+}}}
+
