@@ -1,11 +1,48 @@
+'use client'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { Users, Calendar, CheckSquare, FileSpreadsheet } from "lucide-react"
+import { useEffect, useState } from "react"
+import { programsService, participantsService } from "@/lib/services"
 
 export default function HomePage() {
-  const programCount = 5
-  const participantCount = 30
-  const todayAttendanceCount = 18
+  const [programCount, setProgramCount] = useState(0)
+  const [participantCount, setParticipantCount] = useState(0)
+  const [todayAttendanceCount, setTodayAttendanceCount] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        // 프로그램 목록 조회
+        const programsResponse = await programsService.getAll({ page: 1, limit: 100 })
+        if (programsResponse.success && programsResponse.data) {
+          setProgramCount(programsResponse.meta?.total || programsResponse.data.length)
+        }
+
+        // 참가자 목록 조회
+        const participantsResponse = await participantsService.getAll({ page: 1, limit: 100 })
+        if (participantsResponse.success && participantsResponse.data) {
+          setParticipantCount(participantsResponse.meta?.total || participantsResponse.data.length)
+        }
+
+        // 오늘 출석 수는 임시로 0으로 설정 (추후 API 추가 가능)
+        setTodayAttendanceCount(0)
+      } catch (err) {
+        console.error('Failed to fetch stats:', err)
+        setError('데이터를 불러오는데 실패했습니다.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 md:p-8">
@@ -16,6 +53,12 @@ export default function HomePage() {
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             태블릿 최적화된 직관적인 출석 관리로 교육 프로그램을 효율적으로 운영하세요
           </p>
+          {loading && (
+            <div className="mt-4 text-sm text-blue-600">데이터 로딩 중...</div>
+          )}
+          {error && (
+            <div className="mt-4 text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</div>
+          )}
         </div>
 
         {/* 통계 카드 */}
